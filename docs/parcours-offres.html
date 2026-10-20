@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Parcours d’affichage des offres — Gesta</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: system-ui, sans-serif;
+        line-height: 1.55;
+        color: #172033;
+        background: #f4f6fa;
+      }
+
+      body {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 4rem;
+      }
+
+      h1, h2 {
+        color: #173b68;
+      }
+
+      .flow {
+        display: grid;
+        gap: 0.75rem;
+        margin: 1.5rem 0;
+      }
+
+      .step {
+        padding: 1rem 1.25rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.6rem;
+        background: white;
+      }
+
+      .step h3 {
+        margin: 0 0 0.35rem;
+      }
+
+      .arrow {
+        color: #486581;
+        text-align: center;
+        font-weight: 700;
+      }
+
+      code {
+        overflow-wrap: anywhere;
+        color: #173b68;
+      }
+
+      @media (min-width: 720px) {
+        .flow {
+          grid-template-columns: 1fr auto 1fr;
+          align-items: stretch;
+        }
+
+        .step:nth-of-type(1) { grid-column: 1; grid-row: 1; }
+        .step:nth-of-type(2) { grid-column: 3; grid-row: 1; }
+        .step:nth-of-type(3) { grid-column: 3; grid-row: 2; }
+        .step:nth-of-type(4) { grid-column: 1; grid-row: 2; }
+        .step:nth-of-type(5) { grid-column: 1; grid-row: 3; }
+        .step:nth-of-type(6) { grid-column: 3; grid-row: 3; }
+        .arrow {
+          display: grid;
+          place-items: center;
+        }
+        .arrow:nth-of-type(2) { grid-column: 2; grid-row: 1; }
+        .arrow:nth-of-type(4) { grid-column: 2; grid-row: 2; }
+        .arrow:nth-of-type(6) { grid-column: 2; grid-row: 3; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Parcours d’affichage des offres</h1>
+      <p>
+        Gesta est une application web en npm workspaces : le frontend React/TypeScript
+        (Vite) consomme une API Express/TypeScript, qui lit SQLite avec
+        <code>better-sqlite3</code>. La route des offres illustre les échanges entre ces
+        couches.
+      </p>
+
+      <h2>Du composant React à la base, puis retour à l’écran</h2>
+      <section class="flow" aria-label="Étapes du parcours des offres">
+        <article class="step">
+          <h3>1. Route et page</h3>
+          <code>frontend/src/App.tsx</code> rend <code>OffersPage</code> sur
+          <code>/offres</code> si le profil peut consulter les offres. La page appelle
+          <code>useOffers</code> et affiche chargement, erreur, état vide ou tableau.
+        </article>
+        <div class="arrow" aria-hidden="true">→</div>
+        <article class="step">
+          <h3>2. Hook et service HTTP</h3>
+          <code>frontend/src/hooks/useOffers.ts</code> déclenche le chargement, gère
+          l’annulation et les erreurs 401. <code>frontend/src/services/offers.service.ts</code>
+          envoie <code>GET /api/offers</code> avec le jeton brut dans
+          <code>Authorization</code>, puis valide le JSON avec <code>isOfferList</code>.
+        </article>
+        <div class="arrow" aria-hidden="true">→</div>
+        <article class="step">
+          <h3>3. Proxy et route protégée</h3>
+          En développement, Vite transmet <code>/api/offers</code> au backend en retirant
+          <code>/api</code>. <code>backend/src/app.ts</code> installe l’authentification et
+          branche le contrôleur <code>backend/src/controllers/offers.controller.ts</code>.
+          La permission <code>canListOffers</code> refuse les profils sans accès.
+        </article>
+        <div class="arrow" aria-hidden="true">→</div>
+        <article class="step">
+          <h3>4. Règles métier</h3>
+          <code>backend/src/services/offers.service.ts</code> choisit les offres visibles :
+          toutes pour l’administrateur, publiées pour l’étudiant, déposées par le contact
+          déposant. Le contrôleur convertit ensuite les offres en DTO de réponse.
+        </article>
+        <div class="arrow" aria-hidden="true">→</div>
+        <article class="step">
+          <h3>5. SQL et données</h3>
+          <code>backend/src/repositories/offers.repository.ts</code> exécute une requête
+          SQL qui joint les offres aux entreprises, années académiques et périodes, applique
+          le filtre d’accès et trie les résultats. Le schéma correspondant est défini dans
+          <code>backend/src/db/migrations/001_initial.sql</code>.
+        </article>
+        <div class="arrow" aria-hidden="true">→</div>
+        <article class="step">
+          <h3>6. Conversion et affichage</h3>
+          <code>backend/src/mappers/offer.mapper.ts</code> transforme les lignes SQL en
+          objets métier puis en DTO. Le frontend valide le DTO, le hook le fournit à
+          <code>OffersPage</code>, puis <code>frontend/src/components/OfferTable.tsx</code>
+          affiche titre, entreprise, année, période et statut.
+        </article>
+      </section>
+
+      <h2>Fichiers à examiner pour ajouter un filtre par période</h2>
+      <ul>
+        <li>
+          <code>frontend/src/pages/OffersPage.tsx</code> : état/sélection du filtre et
+          transmission de la période choisie.
+        </li>
+        <li>
+          <code>frontend/src/hooks/useOffers.ts</code> : intégrer la période aux paramètres
+          de chargement ou filtrer localement, selon le comportement voulu.
+        </li>
+        <li>
+          <code>frontend/src/services/offers.service.ts</code> : sérialiser une période
+          dans la query string si le filtrage est effectué par l’API.
+        </li>
+        <li>
+          <code>backend/src/controllers/offers.controller.ts</code> : lire et valider le
+          paramètre de requête avant l’appel au service.
+        </li>
+        <li>
+          <code>backend/src/services/offers.service.ts</code> : combiner le filtre de
+          période avec les règles de visibilité existantes.
+        </li>
+        <li>
+          <code>backend/src/repositories/offers.repository.ts</code> : ajouter le critère
+          SQL correspondant à <code>periods.code</code>.
+        </li>
+        <li>
+          <code>backend/tests/offers.test.ts</code> et
+          <code>frontend/tests/OffersPage.test.tsx</code> : couvrir validation,
+          filtrage et interface.
+        </li>
+        <li><code>backend/API.md</code> : documenter le paramètre et son comportement.</li>
+      </ul>
+      <p>
+        La période existe déjà dans la table <code>periods</code>, elle est liée à l’offre
+        par <code>period_id</code> et la réponse inclut déjà <code>period</code>. Un filtre
+        n’exige donc a priori pas de migration SQL ; le choix entre filtrage côté client et
+        filtrage côté serveur reste à définir selon le comportement souhaité.
+      </p>
+
+      <h2>Commandes du projet</h2>
+      <p>À exécuter depuis la racine :</p>
+      <ul>
+        <li><code>npm ci</code> puis <code>npm run setup</code> : installer et initialiser.</li>
+        <li><code>npm run dev</code> : lancer API et interface.</li>
+        <li><code>npm run db:init</code> / <code>npm run db:reset</code> : initialiser ou recréer la base.</li>
+        <li><code>npm run lint</code> : lint ; <code>npm run typecheck</code> : vérifier TypeScript.</li>
+        <li><code>npm test</code> : lancer les tests Vitest.</li>
+        <li><code>npm run build</code> : compiler backend et frontend.</li>
+        <li><code>npm run check</code> : lint, typecheck, tests et build.</li>
+      </ul>
+      <p>
+        Pour un test ciblé, par exemple :
+        <code>npm run test -w backend -- tests/offers.test.ts</code> ou
+        <code>npm run test -w frontend -- tests/OffersPage.test.tsx</code>.
+      </p>
+    </main>
+  </body>
+</html>

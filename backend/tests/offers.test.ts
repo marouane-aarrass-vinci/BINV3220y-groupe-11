@@ -50,6 +50,53 @@ describe("GET /offers : visibilité selon le profil", () => {
     });
   });
 
+  describe("GET /offers : filtre par période", () => {
+    it.each([
+      ["P1", [OFFER.PDF_REPORTS]],
+      ["P2", [
+        OFFER.CLIENT_PORTAL,
+        OFFER.INTERNAL_CHATBOT,
+        OFFER.DATA_QUALITY,
+        OFFER.FLEET_APP,
+        OFFER.BILLING_API,
+        OFFER.CLOUD_MIGRATION,
+        OFFER.ARCHIVE_DIGITIZATION,
+      ]],
+      ["OTHER", [OFFER.CONSULTANT_PLANNING, OFFER.E2E_TESTS]],
+    ] as const)("filtre les offres de l'administrateur sur %s", async (period, expectedIds) => {
+      const response = await request(app)
+        .get(`/offers?period=${period}`)
+        .set("Authorization", tokenFor("ADMIN", ADMINISTRATOR.ANNE_LECLERCQ));
+
+      expect(response.status).toBe(200);
+      expect(offerIds(response.body)).toEqual(expectedIds);
+      expect(response.body.every((offer: { period: string }) => offer.period === period)).toBe(true);
+    });
+
+    it("combine le filtre avec la visibilité de l'étudiant et du déposant", async () => {
+      const studentResponse = await request(app)
+        .get("/offers?period=OTHER")
+        .set("Authorization", tokenFor("STUDENT", STUDENT.LUCAS_DUPONT));
+      const depositorResponse = await request(app)
+        .get("/offers?period=OTHER")
+        .set("Authorization", tokenFor("CONTACT", CONTACT.MARC_LEJEUNE));
+
+      expect(studentResponse.status).toBe(200);
+      expect(studentResponse.body).toEqual([]);
+      expect(depositorResponse.status).toBe(200);
+      expect(offerIds(depositorResponse.body)).toEqual([OFFER.E2E_TESTS]);
+    });
+
+    it.each(["INVALID", "P1&period=P2"])("rejette un paramètre period invalide ou répété (%s)", async (query) => {
+      const response = await request(app)
+        .get(`/offers?period=${query}`)
+        .set("Authorization", tokenFor("ADMIN", ADMINISTRATOR.ANNE_LECLERCQ));
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe("INVALID_QUERY");
+    });
+  });
+
   it("ne montre que les offres publiées à un étudiant", async () => {
     const response = await listOffersAs("STUDENT", STUDENT.LUCAS_DUPONT);
 

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import OffersPage from "../src/pages/OffersPage.tsx";
 import { adminUser, contactUser, stubFetch, studentUser } from "./helpers/fetchMock.ts";
@@ -31,9 +31,28 @@ describe("OffersPage", () => {
     expect(await screen.findByText("Refonte du portail client")).toBeInTheDocument();
     expect(screen.getByText("Soumise")).toBeInTheDocument();
     expect(screen.getByText("Attribuée")).toBeInTheDocument();
-    expect(screen.getByText("Autre")).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "Autre" })).toBeInTheDocument();
     expect(screen.getByText("2 offres")).toBeInTheDocument();
     expect(screen.getByText("Les offres que vous avez déposées.")).toBeInTheDocument();
+  });
+
+  it("transmet la période choisie à l'API et permet de revenir à toutes les périodes", async () => {
+    const fetchMock = stubFetch({ "/api/offers": () => Response.json(offers) });
+
+    render(<OffersPage user={contactUser} token="jeton" onUnauthorized={vi.fn()} />);
+
+    const periodSelect = screen.getByRole("combobox", { name: "Période" });
+    expect(periodSelect).toHaveValue("");
+    expect(fetchMock.mock.calls[0]?.[0]).toBe("/api/offers");
+    expect(await screen.findByText("Refonte du portail client")).toBeInTheDocument();
+
+    fireEvent.change(periodSelect, { target: { value: "P1" } });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(fetchMock.mock.calls[1]?.[0]).toBe("/api/offers?period=P1");
+
+    fireEvent.change(periodSelect, { target: { value: "" } });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    expect(fetchMock.mock.calls[2]?.[0]).toBe("/api/offers");
   });
 
   it("adapte la description au profil", async () => {
