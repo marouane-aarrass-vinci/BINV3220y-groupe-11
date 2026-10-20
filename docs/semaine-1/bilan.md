@@ -1,0 +1,1 @@
+J'ai appris à utiliser l'ia intégrer et verifier son travaille en temps réel. Tout a bien fonctionné. L'export de la conversation est assez long et en format json, je ne sais pas si c'est normal. 
