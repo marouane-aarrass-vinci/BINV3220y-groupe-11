@@ -70,7 +70,8 @@ Aucun fichier du projet n'a été modifié durant cette phase. Aucun test n'a en
 - Difficulté rencontrée et solution : le script de copie des migrations utilisait `fs.cpSync`
   récursivement, qui provoquait un arrêt Windows sans diagnostic dans cet environnement
   OneDrive. Il copie maintenant les fichiers SQL un par un.
-- Hors périmètre à cette étape : EF-33 et le retrait d'une candidature ne sont pas implémentés.
+- À la fin de l'étape EF-32, EF-33 et le retrait d'une candidature n'étaient pas encore
+  implémentés. EF-33 est traité à la section suivante ; le retrait reste hors périmètre.
 
 ## 6. Implémentation EF-33 — Consultation des candidatures
 

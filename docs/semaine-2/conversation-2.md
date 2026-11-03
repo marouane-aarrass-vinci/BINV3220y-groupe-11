@@ -2,11 +2,24 @@
 
 ## Demande
 
-**Utilisateur :** Implémente EF-33 pour permettre à l'étudiant connecté de consulter ses
-candidatures. Afficher les informations utiles et les statuts « En cours », « Retenue »,
-« Non retenue » et « Retirée ». Les candidatures doivent être filtrées par étudiant et
-les autorisations contrôlées côté backend. Respecter l'architecture existante, ajouter
-les tests et ne pas développer le retrait.
+**Utilisateur :**
+
+> Implémente maintenant EF-33 : permettre à un étudiant de consulter ses propres candidatures.
+>
+> Objectifs :
+> - Créer une interface permettant à l'étudiant connecté de consulter ses candidatures.
+> - Afficher les informations utiles de chaque candidature.
+> - Afficher les statuts en français : En cours, Retenue, Non retenue et Retirée.
+> - Récupérer uniquement les candidatures de l'étudiant connecté.
+> - Vérifier les autorisations côté backend.
+> - Réutiliser les composants et services existants.
+> Respecte l'architecture et les conventions du projet.
+>
+> Ne développe pas encore la fonctionnalité de retrait.
+>
+> Ajoute les tests nécessaires.
+>
+> À la fin, indique les fichiers modifiés, les changements effectués et les tests réalisés.
 
 ## Échanges et réalisation
 
