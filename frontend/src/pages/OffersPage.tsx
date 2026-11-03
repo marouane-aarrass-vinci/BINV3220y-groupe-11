@@ -3,6 +3,7 @@ import EmptyState from "../components/EmptyState.tsx";
 import ErrorState from "../components/ErrorState.tsx";
 import LoadingState from "../components/LoadingState.tsx";
 import OfferTable from "../components/OfferTable.tsx";
+import { useApplyToOffer } from "../hooks/useApplyToOffer.ts";
 import { useOffers } from "../hooks/useOffers.ts";
 import type { PeriodCode } from "../models/offer.ts";
 import type { User } from "../models/user.ts";
@@ -22,6 +23,7 @@ const DESCRIPTIONS = {
 const OffersPage = ({ user, token, onUnauthorized }: OffersPageProps) => {
   const [period, setPeriod] = useState<PeriodCode | "">("");
   const { offers, isLoading, error } = useOffers(token, onUnauthorized, period || undefined);
+  const { apply } = useApplyToOffer(token, onUnauthorized);
 
   const renderContent = () => {
     if (error) return <ErrorState message={error} />;
@@ -32,7 +34,7 @@ const OffersPage = ({ user, token, onUnauthorized }: OffersPageProps) => {
         <p className="result-count">
           {offers.length} offre{offers.length > 1 ? "s" : ""}
         </p>
-        <OfferTable offers={offers} />
+        <OfferTable offers={offers} onApply={user.kind === "STUDENT" ? apply : undefined} />
       </>
     );
   };

@@ -1,12 +1,14 @@
 import type { Offer } from "../models/offer.ts";
 import { OFFER_STATUS_LABELS, OFFER_STATUS_TONES, PERIOD_LABELS } from "../utils/labels.ts";
+import ApplicationForm from "./ApplicationForm.tsx";
 import StatusBadge from "./StatusBadge.tsx";
 
 interface OfferTableProps {
   offers: Offer[];
+  onApply?: (offerId: number, message?: string) => Promise<unknown>;
 }
 
-const OfferTable = ({ offers }: OfferTableProps) => (
+const OfferTable = ({ offers, onApply }: OfferTableProps) => (
   <div className="table-wrapper">
     <table className="data-table">
       <thead>
@@ -16,6 +18,7 @@ const OfferTable = ({ offers }: OfferTableProps) => (
           <th scope="col">Année</th>
           <th scope="col">Période</th>
           <th scope="col">Statut</th>
+          {onApply !== undefined && <th scope="col">Candidature</th>}
         </tr>
       </thead>
       <tbody>
@@ -31,6 +34,19 @@ const OfferTable = ({ offers }: OfferTableProps) => (
                 tone={OFFER_STATUS_TONES[offer.status]}
               />
             </td>
+            {onApply !== undefined && (
+              <td>
+                {offer.status === "PUBLISHED" ? (
+                  <ApplicationForm
+                    offerId={offer.id}
+                    offerTitle={offer.title}
+                    onApply={onApply}
+                  />
+                ) : (
+                  "—"
+                )}
+              </td>
+            )}
           </tr>
         ))}
       </tbody>

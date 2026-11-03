@@ -22,6 +22,15 @@ const offers = [
   },
 ];
 
+const publishedOffer = {
+  id: 5,
+  title: "Tableau de bord de qualité des données",
+  companyShortName: "Lumen Data",
+  academicYear: "2026-2027",
+  period: "P2",
+  status: "PUBLISHED",
+};
+
 describe("OffersPage", () => {
   it("affiche les offres avec leurs libellés français", async () => {
     stubFetch({ "/api/offers": () => Response.json(offers) });
@@ -82,6 +91,104 @@ describe("OffersPage", () => {
     const onUnauthorized = vi.fn();
 
     render(<OffersPage user={contactUser} token="jeton" onUnauthorized={onUnauthorized} />);
+
+    await waitFor(() => expect(onUnauthorized).toHaveBeenCalled());
+  });
+
+  it("permet à un étudiant de postuler avec un message facultatif", async () => {
+    const fetchMock = stubFetch({
+      "/api/offers": () => Response.json([publishedOffer]),
+      "/api/offers/5/applications": () =>
+        Response.json(
+          {
+            id: 10,
+            offerId: 5,
+            message: "Le sujet m'intéresse.",
+            status: "IN_PROGRESS",
+            appliedAt: "2026-11-03 14:00:00",
+          },
+          { status: 201 },
+        ),
+    });
+
+    render(<OffersPage user={studentUser} token="jeton" onUnauthorized={vi.fn()} />);
+
+    expect(await screen.findByRole("button", { name: "Postuler" })).toBeInTheDocument();
+    fireEvent.change(screen.getByRole("textbox", { name: "Message facultatif pour Tableau de bord de qualité des données" }), {
+      target: { value: "  Le sujet m'intéresse.  " },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Postuler" }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent("Candidature envoyée.");
+    const [url, init] = fetchMock.mock.calls[1] ?? [];
+    expect(url).toBe("/api/offers/5/applications");
+    expect(init?.method).toBe("POST");
+    expect(init?.headers).toEqual({
+      Authorization: "jeton",
+      "Content-Type": "application/json",
+    });
+    expect(JSON.parse(String(init?.body))).toEqual({ message: "Le sujet m'intéresse." });
+  });
+
+  it("envoie un corps sans message quand le champ facultatif est vide", async () => {
+    const fetchMock = stubFetch({
+      "/api/offers": () => Response.json([publishedOffer]),
+      "/api/offers/5/applications": () =>
+        Response.json({
+          id: 10,
+          offerId: 5,
+          message: null,
+          status: "IN_PROGRESS",
+          appliedAt: "2026-11-03 14:00:00",
+        }),
+    });
+
+    render(<OffersPage user={studentUser} token="jeton" onUnauthorized={vi.fn()} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Postuler" }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent("Candidature envoyée.");
+    const init = fetchMock.mock.calls[1]?.[1];
+    expect(JSON.parse(String(init?.body))).toEqual({});
+  });
+
+  it("ne propose pas de candidature aux autres profils", async () => {
+    stubFetch({ "/api/offers": () => Response.json([publishedOffer]) });
+
+    const { unmount } = render(
+      <OffersPage user={adminUser} token="jeton" onUnauthorized={vi.fn()} />,
+    );
+    await screen.findByText(publishedOffer.title);
+    expect(screen.queryByRole("button", { name: "Postuler" })).not.toBeInTheDocument();
+    unmount();
+
+    render(<OffersPage user={contactUser} token="jeton" onUnauthorized={vi.fn()} />);
+    await screen.findByText(publishedOffer.title);
+    expect(screen.queryByRole("button", { name: "Postuler" })).not.toBeInTheDocument();
+  });
+
+  it("affiche un message clair si l'offre n'est plus disponible ou déjà postulée", async () => {
+    stubFetch({
+      "/api/offers": () => Response.json([publishedOffer]),
+      "/api/offers/5/applications": () => new Response(null, { status: 409 }),
+    });
+
+    render(<OffersPage user={studentUser} token="jeton" onUnauthorized={vi.fn()} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Postuler" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Vous avez déjà postulé à cette offre ou elle n'est plus disponible.",
+    );
+  });
+
+  it("déconnecte l'étudiant si la session expire pendant la candidature", async () => {
+    const onUnauthorized = vi.fn();
+    stubFetch({
+      "/api/offers": () => Response.json([publishedOffer]),
+      "/api/offers/5/applications": () => new Response(null, { status: 401 }),
+    });
+
+    render(<OffersPage user={studentUser} token="jeton" onUnauthorized={onUnauthorized} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Postuler" }));
 
     await waitFor(() => expect(onUnauthorized).toHaveBeenCalled());
   });

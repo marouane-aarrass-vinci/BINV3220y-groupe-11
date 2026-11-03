@@ -29,8 +29,12 @@ Toute erreur a la même forme :
 |---|---|---|
 | 400 | `INVALID_QUERY` | Paramètre de requête invalide |
 | 400 | `INVALID_BODY` | Corps de requête invalide |
+| 400 | `INVALID_PARAM` | Paramètre de chemin invalide |
 | 401 | `UNAUTHENTICATED` | Session absente, expirée ou invalide ; compte non autorisé à se connecter |
 | 403 | `FORBIDDEN` | Utilisateur connecté, mais sans droit sur la ressource |
+| 404 | `OFFER_NOT_FOUND` | Offre inconnue |
+| 409 | `OFFER_NOT_PUBLISHED` | L'offre n'est pas publiée |
+| 409 | `APPLICATION_ALREADY_EXISTS` | L'étudiant a déjà une candidature pour cette offre |
 | 404 | `NOT_FOUND` | Route inconnue |
 | 500 | `INTERNAL_ERROR` | Erreur inattendue du serveur |
 
@@ -171,3 +175,88 @@ récente à la plus ancienne, puis de la plus récente à la plus ancienne.
 - `401` `UNAUTHENTICATED` : session absente ou invalide.
 - `403` `FORBIDDEN` : contact seulement promoteur ou signataire.
 - `400` `INVALID_QUERY` : paramètre `period` inconnu ou répété.
+
+## POST /offers/:offerId/applications
+
+Permet à l'étudiant connecté de postuler à une offre publiée. Le serveur détermine
+l'étudiant depuis la session ; le corps ne peut pas définir l'identité du candidat.
+Une seule candidature est autorisée par étudiant et par offre, même si une candidature
+antérieure a été retirée.
+
+### Requête
+
+- Header `Authorization` obligatoire
+- `offerId` : identifiant entier positif d'une offre
+- Body JSON facultatif :
+
+```json
+{
+  "message": "Le sujet correspond à mon projet professionnel."
+}
+```
+
+Le champ `message` est facultatif. Une chaîne vide ou composée d'espaces est enregistrée
+comme `null`. Aucun autre champ n'est accepté dans le corps.
+
+### Réponses
+
+- `201` : candidature créée
+
+```json
+{
+  "id": 12,
+  "offerId": 5,
+  "message": "Le sujet correspond à mon projet professionnel.",
+  "status": "IN_PROGRESS",
+  "appliedAt": "2026-11-03 14:00:00"
+}
+```
+
+- `400` `INVALID_PARAM` : identifiant d'offre invalide.
+- `400` `INVALID_BODY` : message non textuel ou corps invalide.
+- `401` `UNAUTHENTICATED` : session absente ou invalide.
+- `403` `FORBIDDEN` : profil non étudiant.
+- `404` `OFFER_NOT_FOUND` : offre inexistante.
+- `409` `OFFER_NOT_PUBLISHED` : l'offre n'est pas publiée.
+- `409` `APPLICATION_ALREADY_EXISTS` : une candidature de cet étudiant existe déjà
+  pour cette offre, y compris si elle est au statut `WITHDRAWN`.
+
+## GET /applications
+
+Liste les candidatures de l'étudiant connecté. L'identifiant étudiant provient de la
+session et n'est jamais fourni par le client. Les candidatures sont triées de la plus récente
+à la plus ancienne.
+
+### Requête
+
+- Header `Authorization` obligatoire
+- Aucun paramètre
+
+### Réponse
+
+- `200` : tableau de candidatures. Chaque entrée contient les informations de l'offre,
+  le message éventuel, la date et le statut.
+
+```json
+[
+  {
+    "id": 12,
+    "offer": {
+      "id": 5,
+      "title": "Tableau de bord de qualité des données",
+      "companyShortName": "Lumen Data",
+      "academicYear": "2026-2027",
+      "period": "P2"
+    },
+    "message": "Le sujet correspond à mon projet professionnel.",
+    "status": "IN_PROGRESS",
+    "appliedAt": "2026-11-03 14:00:00"
+  }
+]
+```
+
+Les statuts sont `IN_PROGRESS`, `SELECTED`, `REJECTED` et `WITHDRAWN`. Une liste vide est
+retournée si l'étudiant n'a aucune candidature.
+
+- `401` `UNAUTHENTICATED` : session absente ou invalide.
+- `403` `FORBIDDEN` : profil non étudiant.

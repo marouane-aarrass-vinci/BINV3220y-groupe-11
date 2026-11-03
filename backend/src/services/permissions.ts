@@ -17,3 +17,9 @@ export const hasContactRole = (user: User, role: ContactRole): boolean =>
  */
 export const canListOffers = (user: User): boolean =>
   isAdmin(user) || isStudent(user) || hasContactRole(user, "DEPOSITOR");
+
+/** Seul un étudiant peut déposer une candidature. */
+export const canApplyToOffer = (user: User): boolean => isStudent(user);
+
+/** Un étudiant ne consulte que ses propres candidatures. */
+export const canListOwnApplications = (user: User): boolean => isStudent(user);

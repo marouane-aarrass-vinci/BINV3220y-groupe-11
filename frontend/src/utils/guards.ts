@@ -2,6 +2,11 @@ import { COMPANY_STATUSES, type Company, type CompanyStatus } from "../models/co
 import type { Health } from "../models/health.ts";
 import { OFFER_STATUSES, PERIOD_CODES, type Offer } from "../models/offer.ts";
 import {
+  APPLICATION_STATUSES,
+  type Application,
+  type ApplicationListItem,
+} from "../models/application.ts";
+import {
   CONTACT_ROLES,
   USER_KINDS,
   type CompanySummary,
@@ -64,3 +69,27 @@ export const isOffer = (value: unknown): value is Offer =>
 
 export const isOfferList = (value: unknown): value is Offer[] =>
   Array.isArray(value) && value.every(isOffer);
+
+export const isApplication = (value: unknown): value is Application =>
+  isRecord(value) &&
+  typeof value.id === "number" &&
+  typeof value.offerId === "number" &&
+  (value.message === null || typeof value.message === "string") &&
+  isOneOf(APPLICATION_STATUSES, value.status) &&
+  typeof value.appliedAt === "string";
+
+export const isApplicationListItem = (value: unknown): value is ApplicationListItem =>
+  isRecord(value) &&
+  typeof value.id === "number" &&
+  (value.message === null || typeof value.message === "string") &&
+  isOneOf(APPLICATION_STATUSES, value.status) &&
+  typeof value.appliedAt === "string" &&
+  isRecord(value.offer) &&
+  typeof value.offer.id === "number" &&
+  typeof value.offer.title === "string" &&
+  typeof value.offer.companyShortName === "string" &&
+  typeof value.offer.academicYear === "string" &&
+  isOneOf(PERIOD_CODES, value.offer.period);
+
+export const isApplicationList = (value: unknown): value is ApplicationListItem[] =>
+  Array.isArray(value) && value.every(isApplicationListItem);
