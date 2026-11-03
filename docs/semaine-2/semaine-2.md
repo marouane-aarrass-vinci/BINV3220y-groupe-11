@@ -70,4 +70,21 @@ Aucun fichier du projet n'a été modifié durant cette phase. Aucun test n'a en
 - Difficulté rencontrée et solution : le script de copie des migrations utilisait `fs.cpSync`
   récursivement, qui provoquait un arrêt Windows sans diagnostic dans cet environnement
   OneDrive. Il copie maintenant les fichiers SQL un par un.
-- Hors périmètre : EF-33 et le retrait d'une candidature ne sont pas implémentés.
+- Hors périmètre à cette étape : EF-33 et le retrait d'une candidature ne sont pas implémentés.
+
+## 6. Implémentation EF-33 — Consultation des candidatures
+
+- API : ajout de `GET /applications`. Le serveur exige une session d'étudiant ; le
+  repository filtre les résultats avec l'identifiant issu de cette session et ne reçoit
+  aucun identifiant étudiant depuis le client.
+- Informations affichées : titre de l'offre, entreprise, année académique, période,
+  message éventuel et date de candidature.
+- Statuts : `IN_PROGRESS` → « En cours », `SELECTED` → « Retenue », `REJECTED` →
+  « Non retenue », `WITHDRAWN` → « Retirée ».
+- Interface : page « Mes candidatures », lien réservé aux étudiants, liste vide et états
+  d'erreur/chargement. Aucune action de retrait n'est proposée.
+- Tests EF-33 : 8 tests API pour la session, les rôles, l'isolation des candidatures par
+  étudiant, les informations retournées, les statuts existants et l'état sans candidature ;
+  6 tests frontend pour l'affichage, les statuts, la navigation, la liste vide et les erreurs.
+- Vérification complète : `npm run check` réussi — lint, typecheck, 141 tests backend,
+  58 tests frontend, build backend et build frontend.

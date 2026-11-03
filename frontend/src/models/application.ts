@@ -9,3 +9,13 @@ export interface Application {
   status: ApplicationStatus;
   appliedAt: string;
 }
+
+export interface ApplicationListItem extends Application {
+  offer: {
+    id: number;
+    title: string;
+    companyShortName: string;
+    academicYear: string;
+    period: "P1" | "P2" | "OTHER";
+  };
+}

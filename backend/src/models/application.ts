@@ -27,3 +27,34 @@ export interface ApplicationDto {
   status: ApplicationStatus;
   appliedAt: string;
 }
+
+export interface ApplicationListItemDbo extends ApplicationDbo {
+  offer_title: string;
+  company_short_name: string;
+  academic_year_label: string;
+  period_code: "P1" | "P2" | "OTHER";
+}
+
+export interface ApplicationListItem extends Application {
+  offer: {
+    id: number;
+    title: string;
+    companyShortName: string;
+    academicYear: string;
+    period: "P1" | "P2" | "OTHER";
+  };
+}
+
+export interface ApplicationListItemDto {
+  id: number;
+  offer: {
+    id: number;
+    title: string;
+    companyShortName: string;
+    academicYear: string;
+    period: "P1" | "P2" | "OTHER";
+  };
+  message: string | null;
+  status: ApplicationStatus;
+  appliedAt: string;
+}

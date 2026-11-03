@@ -20,3 +20,6 @@ export const canListOffers = (user: User): boolean =>
 
 /** Seul un étudiant peut déposer une candidature. */
 export const canApplyToOffer = (user: User): boolean => isStudent(user);
+
+/** Un étudiant ne consulte que ses propres candidatures. */
+export const canListOwnApplications = (user: User): boolean => isStudent(user);

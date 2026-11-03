@@ -220,3 +220,43 @@ comme `null`. Aucun autre champ n'est accepté dans le corps.
 - `409` `OFFER_NOT_PUBLISHED` : l'offre n'est pas publiée.
 - `409` `APPLICATION_ALREADY_EXISTS` : une candidature de cet étudiant existe déjà
   pour cette offre, y compris si elle est au statut `WITHDRAWN`.
+
+## GET /applications
+
+Liste les candidatures de l'étudiant connecté. L'identifiant étudiant provient de la
+session et n'est jamais fourni par le client. Les candidatures sont triées de la plus récente
+à la plus ancienne.
+
+### Requête
+
+- Header `Authorization` obligatoire
+- Aucun paramètre
+
+### Réponse
+
+- `200` : tableau de candidatures. Chaque entrée contient les informations de l'offre,
+  le message éventuel, la date et le statut.
+
+```json
+[
+  {
+    "id": 12,
+    "offer": {
+      "id": 5,
+      "title": "Tableau de bord de qualité des données",
+      "companyShortName": "Lumen Data",
+      "academicYear": "2026-2027",
+      "period": "P2"
+    },
+    "message": "Le sujet correspond à mon projet professionnel.",
+    "status": "IN_PROGRESS",
+    "appliedAt": "2026-11-03 14:00:00"
+  }
+]
+```
+
+Les statuts sont `IN_PROGRESS`, `SELECTED`, `REJECTED` et `WITHDRAWN`. Une liste vide est
+retournée si l'étudiant n'a aucune candidature.
+
+- `401` `UNAUTHENTICATED` : session absente ou invalide.
+- `403` `FORBIDDEN` : profil non étudiant.

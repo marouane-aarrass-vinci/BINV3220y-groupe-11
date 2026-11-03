@@ -1,6 +1,7 @@
 import express from "express";
 import type { AuthConfig } from "./config.ts";
 import { createAuthRouter } from "./controllers/auth.controller.ts";
+import { createApplicationsRouter } from "./controllers/applications.controller.ts";
 import { createCompaniesRouter } from "./controllers/companies.controller.ts";
 import { healthRouter } from "./controllers/health.controller.ts";
 import { createOffersRouter } from "./controllers/offers.controller.ts";
@@ -33,6 +34,7 @@ export const createApp = (db: Db, authConfig: AuthConfig) => {
 
   // Routes protégées : l'utilisateur est identifié avant d'atteindre le contrôleur.
   app.use("/companies", authenticate, createCompaniesRouter(companiesService));
+  app.use("/applications", authenticate, createApplicationsRouter(applicationsService));
   app.use("/offers", authenticate, createOffersRouter(offersService, applicationsService));
 
   app.use(notFoundHandler);

@@ -1,4 +1,11 @@
-import type { Application, ApplicationDbo, ApplicationDto } from "../models/application.ts";
+import type {
+  Application,
+  ApplicationDbo,
+  ApplicationDto,
+  ApplicationListItem,
+  ApplicationListItemDbo,
+  ApplicationListItemDto,
+} from "../models/application.ts";
 
 export const toApplication = (dbo: ApplicationDbo): Application => ({
   id: dbo.id,
@@ -12,6 +19,27 @@ export const toApplication = (dbo: ApplicationDbo): Application => ({
 export const toApplicationDto = (application: Application): ApplicationDto => ({
   id: application.id,
   offerId: application.offerId,
+  message: application.message,
+  status: application.status,
+  appliedAt: application.appliedAt,
+});
+
+export const toApplicationListItem = (dbo: ApplicationListItemDbo): ApplicationListItem => ({
+  ...toApplication(dbo),
+  offer: {
+    id: dbo.offer_id,
+    title: dbo.offer_title,
+    companyShortName: dbo.company_short_name,
+    academicYear: dbo.academic_year_label,
+    period: dbo.period_code,
+  },
+});
+
+export const toApplicationListItemDto = (
+  application: ApplicationListItem,
+): ApplicationListItemDto => ({
+  id: application.id,
+  offer: application.offer,
   message: application.message,
   status: application.status,
   appliedAt: application.appliedAt,

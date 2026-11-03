@@ -146,6 +146,18 @@ nouvelles.
 | Formulaire | `frontend/src/components/ApplicationForm.tsx`, `frontend/src/components/OfferTable.tsx` |
 | Tests interface | `frontend/tests/OffersPage.test.tsx` |
 
+### Consultation des candidatures de l'étudiant
+
+| Couche | Fichier |
+|---|---|
+| Route | `backend/src/controllers/applications.controller.ts` (`GET /applications`) |
+| Service, droits et repository | `backend/src/services/applications.service.ts`, `services/permissions.ts`, `backend/src/repositories/applications.repository.ts` |
+| Modèles et mapper | `backend/src/models/application.ts`, `backend/src/mappers/application.mapper.ts` |
+| Tests API | `backend/tests/myApplications.test.ts` |
+| Service et hook frontend | `frontend/src/services/applications.service.ts`, `frontend/src/hooks/useApplications.ts` |
+| Page, route et navigation | `frontend/src/pages/MyApplicationsPage.tsx`, `frontend/src/App.tsx`, `frontend/src/components/NavBar.tsx` |
+| Tests interface | `frontend/tests/MyApplicationsPage.test.tsx`, `frontend/tests/NavBar.test.tsx`, `frontend/tests/App.test.tsx` |
+
 ## Tests
 
 - Backend (`backend/tests/`) : Vitest et Supertest sur une base SQLite en mémoire, jamais
