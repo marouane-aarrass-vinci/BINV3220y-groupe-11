@@ -133,6 +133,19 @@ nouvelles.
 | Page et composants | `frontend/src/pages/OffersPage.tsx`, `OfferTable.tsx` |
 | Tests interface | `frontend/tests/OffersPage.test.tsx`, `NavBar.test.tsx` |
 
+### Candidature à une offre publiée
+
+| Couche | Fichier |
+|---|---|
+| Route | `backend/src/controllers/offers.controller.ts` (`POST /offers/:offerId/applications`) |
+| Service et permissions | `backend/src/services/applications.service.ts`, `services/permissions.ts` |
+| Repository et migration | `backend/src/repositories/applications.repository.ts`, `db/migrations/002_unique_application_per_offer.sql` |
+| Modèle et mapper | `backend/src/models/application.ts`, `backend/src/mappers/application.mapper.ts` |
+| Tests API et contraintes | `backend/tests/applications.test.ts`, `backend/tests/db/constraints.test.ts` |
+| Service et hook frontend | `frontend/src/services/applications.service.ts`, `frontend/src/hooks/useApplyToOffer.ts` |
+| Formulaire | `frontend/src/components/ApplicationForm.tsx`, `frontend/src/components/OfferTable.tsx` |
+| Tests interface | `frontend/tests/OffersPage.test.tsx` |
+
 ## Tests
 
 - Backend (`backend/tests/`) : Vitest et Supertest sur une base SQLite en mémoire, jamais

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "../../src/db/database.ts";
 import {
+  APPLICATION,
   ACADEMIC_YEAR,
   COMPANY,
   CONTACT,
@@ -169,6 +170,18 @@ const insertInternship = (overrides: Record<string, unknown> = {}) =>
     });
 
 describe("candidatures et stages", () => {
+  it("refuse un deuxième dossier pour le même étudiant et la même offre, même après retrait", () => {
+    expect(() =>
+      db
+        .prepare(
+          `INSERT INTO applications (offer_id, student_id, message)
+           VALUES (?, ?, ?)`,
+        )
+        .run(OFFER.BILLING_API, STUDENT.INES_HADDAD, "Nouvelle candidature"),
+    ).toThrow(/UNIQUE/);
+    expect(APPLICATION.INES_BILLING_API).toBe(5);
+  });
+
   it("accepte un stage valide, avec ou sans promoteur", () => {
     expect(() => insertInternship()).not.toThrow();
     expect(() => insertInternship({ promoter_contact_id: null })).not.toThrow();

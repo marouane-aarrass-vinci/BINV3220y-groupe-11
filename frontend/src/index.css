@@ -201,6 +201,59 @@ body {
   background-color: #dbeafe;
 }
 
+.button-primary {
+  color: #ffffff;
+  background-color: #1d4ed8;
+}
+
+.button-primary:hover:not(:disabled) {
+  background-color: #1e40af;
+}
+
+.button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.application-form {
+  display: flex;
+  min-width: 12rem;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.application-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.application-form textarea {
+  min-width: 12rem;
+  padding: 0.375rem 0.5rem;
+  font: inherit;
+  font-weight: 400;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  resize: vertical;
+}
+
+.application-success,
+.application-error {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.application-success {
+  color: #166534;
+}
+
+.application-error {
+  color: #991b1b;
+}
+
 .demo-banner {
   margin: 0;
   padding: 0.375rem 1.5rem;
