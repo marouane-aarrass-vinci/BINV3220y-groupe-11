@@ -61,6 +61,22 @@ describe("GET /applications : candidatures propres à l'étudiant", () => {
     expect(response.body[0].studentId).toBeUndefined();
   });
 
+  it("ignore un studentId fourni par le client et filtre selon la session", async () => {
+    const response = await request(app)
+      .get(`/applications?studentId=${STUDENT.INES_HADDAD}`)
+      .set("Authorization", tokenFor("STUDENT", STUDENT.LUCAS_DUPONT));
+
+    expect(response.status).toBe(200);
+    expect(response.body.map((application: { id: number }) => application.id)).toEqual([
+      APPLICATION.LUCAS_FLEET_APP,
+    ]);
+    expect(
+      response.body.some(
+        (application: { id: number }) => application.id === APPLICATION.INES_FLEET_APP,
+      ),
+    ).toBe(false);
+  });
+
   it("inclut les statuts en cours et retiré sans permettre de modifier une candidature", async () => {
     const response = await listApplicationsAs("STUDENT", STUDENT.INES_HADDAD);
 
