@@ -1,5 +1,9 @@
 # Semaine 8 — Bilan du harnais agentique
 
+Les deux matrices demandées sont aussi fournies séparément :
+[guides, senseurs et audit Web 2](./matrice-guides-senseurs.md) et
+[traçabilité des tests EF-32/EF-33](./matrice-tracabilite-tests.md).
+
 ## 1. Guides et senseurs repérés
 
 Un guide oriente le travail en amont ; un senseur exécute une vérification et retourne un
