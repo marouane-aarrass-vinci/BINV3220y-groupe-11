@@ -24,17 +24,19 @@ installés dans `.github/skills/test-driven-development/`, avec le fichier `LICE
 implémentation est ajoutée au skill et à `.github/copilot-instructions.md`. Le front matter ne
 contient pas `disable-model-invocation: true`.
 
-Les tests ont été exécutés avant tout changement applicatif. Résultat rouge attendu :
+Le lot initial de tests API/frontend a été exécuté avant tout changement applicatif. Résultat
+rouge attendu :
 
 - API offres : 4 tests échouaient parce que `search` n’était pas appliqué; 16 passaient.
 - Interface offres : 2 tests échouaient parce que le champ de recherche n’existait pas; 10
   passaient.
 
-Après l’implémentation, les tests ciblés passent : 21 tests API et 12 tests frontend. Le test
-sur `QUALITÉ` vérifie également la casse des lettres accentuées, sans ajouter de recherche
-insensible aux accents. L’avis sur ce lot : les attentes sont fondées sur les résultats visibles
-par l’API et l’interface, couvrent les filtres et la visibilité, et les échecs initiaux
-correspondaient bien à l’absence de la fonctionnalité.
+Après l’implémentation, les tests ciblés passent : 21 tests API et 12 tests frontend. Le cas
+supplémentaire `QUALITÉ` a été ajouté pendant la relecture; son échec n’a pas été observé
+séparément avant l’ajustement Unicode. Il vérifie la casse des lettres accentuées, sans ajouter
+de recherche insensible aux accents. L’avis sur le lot initial : les attentes sont fondées sur
+les résultats visibles par l’API et l’interface, couvrent les filtres et la visibilité, et les
+échecs initiaux correspondaient bien à l’absence de la fonctionnalité.
 
 Le dossier `test-gap-audit` n’était pas fourni dans le projet et je n’ai pas accès au paquet
 Moodle : ce skill et ses scripts ne sont donc pas installés. `/skills reload`, le test de
