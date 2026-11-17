@@ -66,3 +66,9 @@ Les fichiers `tool-guardian.json` et `guard-tool.cjs` n’étaient pas fournis; 
 la commande de lancement et `permissionDecision: "deny"` n’ont donc pas pu être vérifiés.
 Je n’ai pas créé `demo-protected.txt` et n’ai pas prétendu observer un refus de hook. Les deux
 essais, leurs traces et la vérification du fichier restent à faire après réception du paquet.
+
+## Publication
+
+Le commit `d2f8686` est publié sur la branche `week-9-skills-search-hooks`. La création et la
+fusion de la PR restent bloquées : `gh auth status` signale un jeton GitHub invalide et le
+navigateur n’est pas connecté. Il n’existe donc pas encore de lien de PR à remettre sur Moodle.
