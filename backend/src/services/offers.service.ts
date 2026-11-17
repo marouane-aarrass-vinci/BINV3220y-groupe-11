@@ -17,8 +17,12 @@ const visibilityFilter = (viewer: User): OfferFilter => {
 };
 
 export const createOffersService = (repository: OffersRepository) => ({
-  listOffers: (viewer: User, period?: PeriodCode): Offer[] =>
-    repository.findAll({ ...visibilityFilter(viewer), period }).map(toOffer),
+  listOffers: (viewer: User, period?: PeriodCode, search?: string): Offer[] => {
+    const offers = repository.findAll({ ...visibilityFilter(viewer), period }).map(toOffer);
+    if (search === undefined) return offers;
+    const normalizedSearch = search.toLowerCase();
+    return offers.filter((offer) => offer.title.toLowerCase().includes(normalizedSearch));
+  },
 });
 
 export type OffersService = ReturnType<typeof createOffersService>;

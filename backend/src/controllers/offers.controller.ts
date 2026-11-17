@@ -51,6 +51,15 @@ const parsePeriod = (value: unknown): PeriodCode | undefined => {
   return value;
 };
 
+const parseSearch = (value: unknown): string | undefined => {
+  if (value === undefined) return undefined;
+  if (typeof value !== "string") {
+    throw new HttpError(400, "INVALID_QUERY", "Le paramètre search doit être un texte");
+  }
+  const search = value.trim();
+  return search === "" ? undefined : search;
+};
+
 export const createOffersRouter = (
   offersService: OffersService,
   applicationsService: ApplicationsService,
@@ -59,7 +68,8 @@ export const createOffersRouter = (
 
   router.get("/", authorize(canListOffers), (req, res) => {
     const period = parsePeriod(req.query.period);
-    res.json(offersService.listOffers(getCurrentUser(req), period).map(toOfferDto));
+    const search = parseSearch(req.query.search);
+    res.json(offersService.listOffers(getCurrentUser(req), period, search).map(toOfferDto));
   });
 
   router.post("/:offerId/applications", authorize(canApplyToOffer), (req, res) => {
