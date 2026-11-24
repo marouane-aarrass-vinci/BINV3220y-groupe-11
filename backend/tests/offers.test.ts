@@ -109,6 +109,83 @@ describe("GET /offers : visibilité selon le profil", () => {
     expect(response.body.every((o: { status: string }) => o.status === "PUBLISHED")).toBe(true);
   });
 
+  describe("GET /offers : recherche par titre", () => {
+    it("recherche une expression partielle sans tenir compte de la casse et des espaces externes", async () => {
+      const response = await request(app)
+        .get("/offers?search=%20%20TABLEAU%20DE%20BORD%20%20")
+        .set("Authorization", tokenFor("STUDENT", STUDENT.LUCAS_DUPONT));
+
+      expect(response.status).toBe(200);
+      expect(offerIds(response.body)).toEqual([OFFER.DATA_QUALITY]);
+    });
+
+    it("ignore la casse des lettres accentuées", async () => {
+      const response = await request(app)
+        .get("/offers?search=QUALIT%C3%89")
+        .set("Authorization", tokenFor("STUDENT", STUDENT.LUCAS_DUPONT));
+
+      expect(response.status).toBe(200);
+      expect(offerIds(response.body)).toEqual([OFFER.DATA_QUALITY]);
+    });
+
+    it("traite plusieurs mots comme une expression continue", async () => {
+      const matching = await request(app)
+        .get("/offers?search=TABLEAU%20DE%20BORD")
+        .set("Authorization", tokenFor("STUDENT", STUDENT.LUCAS_DUPONT));
+      const nonMatching = await request(app)
+        .get("/offers?search=BORD%20TABLEAU")
+        .set("Authorization", tokenFor("STUDENT", STUDENT.LUCAS_DUPONT));
+
+      expect(matching.status).toBe(200);
+      expect(offerIds(matching.body)).toEqual([OFFER.DATA_QUALITY]);
+      expect(nonMatching.status).toBe(200);
+      expect(nonMatching.body).toEqual([]);
+    });
+
+    it("renvoie une liste vide sans correspondance et les offres normales pour une recherche vide", async () => {
+      const unmatched = await request(app)
+        .get("/offers?search=aucune-correspondance")
+        .set("Authorization", tokenFor("STUDENT", STUDENT.LUCAS_DUPONT));
+      const blank = await request(app)
+        .get("/offers?search=%20%20")
+        .set("Authorization", tokenFor("STUDENT", STUDENT.LUCAS_DUPONT));
+
+      expect(unmatched.status).toBe(200);
+      expect(unmatched.body).toEqual([]);
+      expect(blank.status).toBe(200);
+      expect(offerIds(blank.body)).toEqual([
+        OFFER.INTERNAL_CHATBOT,
+        OFFER.DATA_QUALITY,
+        OFFER.FLEET_APP,
+        OFFER.BILLING_API,
+      ]);
+    });
+
+    it("combine la période et conserve la visibilité des offres", async () => {
+      const matchingPeriod = await request(app)
+        .get("/offers?period=P2&search=API")
+        .set("Authorization", tokenFor("STUDENT", STUDENT.LUCAS_DUPONT));
+      const otherPeriod = await request(app)
+        .get("/offers?period=P1&search=API")
+        .set("Authorization", tokenFor("STUDENT", STUDENT.LUCAS_DUPONT));
+      const unpublished = await request(app)
+        .get("/offers?search=Migration")
+        .set("Authorization", tokenFor("STUDENT", STUDENT.LUCAS_DUPONT));
+      const admin = await request(app)
+        .get("/offers?search=Migration")
+        .set("Authorization", tokenFor("ADMIN", ADMINISTRATOR.ANNE_LECLERCQ));
+
+      expect(matchingPeriod.status).toBe(200);
+      expect(offerIds(matchingPeriod.body)).toEqual([OFFER.BILLING_API]);
+      expect(otherPeriod.status).toBe(200);
+      expect(otherPeriod.body).toEqual([]);
+      expect(unpublished.status).toBe(200);
+      expect(unpublished.body).toEqual([]);
+      expect(admin.status).toBe(200);
+      expect(offerIds(admin.body)).toEqual([OFFER.CLOUD_MIGRATION]);
+    });
+  });
+
   it("montre à un déposant toutes ses offres, quel que soit leur statut", async () => {
     const response = await listOffersAs("CONTACT", CONTACT.MARC_LEJEUNE);
 

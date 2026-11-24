@@ -120,3 +120,9 @@ Frontend code follows the MVVM pattern used in the course:
 - Keep test setup in the same style as the repo: in-memory SQLite for backend tests and mocked fetches for frontend tests.
 - Before adding a new feature, inspect the closest existing “reference flow” in the repo (for example company listing or offers listing) and mirror that structure.
 - If a change affects the API contract, update the relevant backend/frontend service and tests together.
+
+Pour tout ajout de fonctionnalité ou correction de bug, lis et applique
+.github/skills/test-driven-development/SKILL.md avant de modifier le code
+de l’application. Écris et exécute les tests d’abord, présente-les, puis attends
+leur validation explicite avant l’implémentation. Cette règle ne concerne pas les
+demandes d’explication ou de documentation seules.
